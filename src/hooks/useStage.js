@@ -1,30 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createStage } from '../gameHelpers'
 
 export const useStage = (player, resetPlayer) => {
-  const [stage, setStage] = useState(createStage())
-  const [rowsCleared, setRowsCleared] = useState(0)
+  const [stage, setStage] = useState(createStage)
 
   useEffect(() => {
-    setRowsCleared(0)
-    const sweepRows = newStage =>
-      newStage.reduce((ack, row) => {
-        if (row.findIndex(cell => cell[0] === 0) === -1) {
-          setRowsCleared(prev => prev + 1)
-          ack.unshift(new Array(newStage[0].length).fill([0, 'clear']))
-          return ack
-        }
-        ack.push(row)
-        return ack
-      }, [])
-
     const updateStage = prevStage => {
-      // First flush the stage
+      // Clean stage
       const newStage = prevStage.map(row =>
         row.map(cell => (cell[1] === 'clear' ? [0, 'clear'] : cell))
       )
 
-      // Then draw the tetromino
+      // Get a tetromino
       player.tetromino.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
@@ -35,23 +22,12 @@ export const useStage = (player, resetPlayer) => {
           }
         })
       })
-      // Then check if we got some score if collided
-      if (player.collided) {
-        resetPlayer()
-        return sweepRows(newStage)
-      }
-      return newStage
+      console.log(newStage);
+      return newStage;
     }
 
-    // Here are the updates
     setStage(prev => updateStage(prev))
-  }, [
-    player.collided,
-    player.pos.x,
-    player.pos.y,
-    player.tetromino,
-    resetPlayer
-  ])
+  }, [player])
 
-  return [stage, setStage, rowsCleared]
+  return [stage, setStage]
 }
